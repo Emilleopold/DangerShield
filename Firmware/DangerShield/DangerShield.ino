@@ -69,7 +69,7 @@ const byte ledCharSet[10] = {
 #define LIGHT    A3
 #define TEMP     A4
 
-#define BUZZER   3
+#define BUZZER   13 // Anstatt dem Buzzer die onboard LED
 #define DATA     4
 #define LED1     5
 #define LED2     6
@@ -150,7 +150,7 @@ void loop()
   char tempString[200];
   sprintf(tempString, "Sliders: %04d %04d %04d Light: %04d Capsense: %04d", val1, val2, val3, lightLevel, capLevel);
   Serial.print(tempString); 
-  sprintf(tempString, " Temp: %03d.%01dC", (int)temperature/10, (int)temperature%10);
+  sprintf(tempString, " RawTemp: %04d Temp: %03d.%01dC", analogRead(TEMP), (int)temperature/10, (int)temperature%10);
   Serial.print(tempString); 
 
   //If user is hitting button 1, turn on LED 1
@@ -177,12 +177,12 @@ void loop()
   //Set the sound based on the 3rd slider
   long buzSound = map(val3, 0, 1020, 1000, 10000); //Map the slider value to an audible frequency
   if(buzSound > 1100)
-    tone(BUZZER, buzSound); //Set sound value
+    tone(BUZZER, buzSound/300); //Set sound value
   else
     noTone(BUZZER);
 
   //If light sensor is less than 3/4 of the average (covered up) then freak out
-  while(lightLevel < (avgLightLevel * 3 / 4))
+  while((lightLevel < (avgLightLevel * 3 / 4)) && false)
   {
     //Blink the status LEDs back and forth
     if(digitalRead(LED1) == LOW)
@@ -204,7 +204,7 @@ void loop()
 
     //Play a horrendously annoying sound
     //Frequency increases with each loop
-    tone(BUZZER, buzSound);
+    tone(BUZZER, buzSound/300);
     buzSound += 100;
     if(buzSound > 3000) buzSound = 1000;
 
